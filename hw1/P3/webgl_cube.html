@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebGL 3D Animated Cube with Lighting</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #1a1a1a;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        canvas {
+            border: 2px solid #333;
+            display: block;
+            margin: 20px auto;
+        }
+
+        h1 {
+            color: white;
+            margin: 0 0 10px 0;
+        }
+
+        .info {
+            color: #aaa;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .stats {
+            color: #888;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>WebGL 3D Animated Cube</h1>
+        <p class="info">Red cube with Phong lighting | Translation (X-axis) + Rotation (X-axis)</p>
+        <canvas id="glCanvas" width="800" height="600"></canvas>
+        <div class="stats">
+            <p>Camera: Z = 10 | Light: (0, 30, 0) | Background: Blue</p>
+            <p id="fps">FPS: 0</p>
+        </div>
+    </div>
+
+
+    <script src="shaders.js"></script>
+    <script src="cube.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.8.1/gl-matrix-min.js"></script>
+    <script>
+        /**
+         * Create a WebGL buffer
+         */
+        function createBuffer(gl, data, target = gl.ARRAY_BUFFER) {
+            const buffer = gl.createBuffer();
+            gl.bindBuffer(target, buffer);
+            gl.bufferData(target, data, gl.STATIC_DRAW);
+            return buffer;
+        }
+
+        /**
+         * Calculate normal matrix (inverse transpose of model-view matrix)
+         */
+        function calcNormalMatrix(modelViewMatrix) {
+            const normalMatrix = mat3.create();
+            mat3.normalFromMat4(normalMatrix, modelViewMatrix);
+            return normalMatrix;
+        }
+
+        // =========================================================================
+        // MAIN APPLICATION
+        // =========================================================================
+
+        const canvas = document.getElementById('glCanvas');
+        const gl = canvas.getContext('webgl');
+
+        if (!gl) {
+            console.error('WebGL not supported');
+            alert('WebGL is not supported in your browser');
+            throw new Error('WebGL context could not be created');
+        }
+
+        // Set viewport and clear color
+        gl.viewport(0, 0, canvas.width, canvas.height);
+        gl.clearColor(0.2, 0.2, 0.8, 1.0); // Blue background (darker blue with more opacity)
+        gl.enable(gl.DEPTH_TEST);
+        
+        console.log('WebGL context initialized');
+        console.log('Canvas size:', canvas.width, 'x', canvas.height);
+
+        // Create and use program
+        const program = createProgram(gl, vertexShaderSource, fragmentShaderSource);
+        
+        if (!program) {
+            console.error('Failed to create WebGL program');
+            throw new Error('Program creation failed');
+        }
+        
+        gl.useProgram(program);
+
+        // Get attribute locations
+        const positionLoc = gl.getAttribLocation(program, 'aPosition');
+        const normalLoc = gl.getAttribLocation(program, 'aNormal');
+
+        // Get uniform locations
+        const modelMatrixLoc = gl.getUniformLocation(program, 'uModelMatrix');
+        const viewMatrixLoc = gl.getUniformLocation(program, 'uViewMatrix');
+        const projectionMatrixLoc = gl.getUniformLocation(program, 'uProjectionMatrix');
+        const normalMatrixLoc = gl.getUniformLocation(program, 'uNormalMatrix');
+        const objectColorLoc = gl.getUniformLocation(program, 'uObjectColor');
+        const lightPosLoc = gl.getUniformLocation(program, 'uLightPos');
+        const viewPosLoc = gl.getUniformLocation(program, 'uViewPos');
+        const lightColorLoc = gl.getUniformLocation(program, 'uLightColor');
+
+        // Create cube geometry
+        const cubeData = createCube(1.0);
+        console.log('Cube geometry created:', cubeData.indexCount, 'indices');
+
+        // Create and bind buffers
+        const positionBuffer = createBuffer(gl, cubeData.vertices);
+        const normalBuffer = createBuffer(gl, cubeData.normals);
+        const indexBuffer = createBuffer(gl, cubeData.indices, gl.ELEMENT_ARRAY_BUFFER);
+
+        // Setup position attribute
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+        gl.enableVertexAttribArray(positionLoc);
+        gl.vertexAttribPointer(positionLoc, 3, gl.FLOAT, false, 0, 0);
+
+        // Setup normal attribute
+        gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+        gl.enableVertexAttribArray(normalLoc);
+        gl.vertexAttribPointer(normalLoc, 3, gl.FLOAT, false, 0, 0);
+
+        // Bind index buffer
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+
+        // Set lighting uniforms
+        gl.uniform3f(lightColorLoc, 1.0, 1.0, 1.0); // White light
+        gl.uniform3f(objectColorLoc, 1.0, 0.0, 0.0); // Red object
+        // Setup matrices
+        const projectionMatrix = mat4.create();
+        mat4.perspective(projectionMatrix, Math.PI / 4, canvas.width / canvas.height, 0.1, 100.0);
+        gl.uniformMatrix4fv(projectionMatrixLoc, false, projectionMatrix);
+
+        const viewMatrix = mat4.create();
+        // Camera positioned at (0, 0, 10) looking at origin (0, 0, 0)
+        mat4.lookAt(viewMatrix, [0, 0, 10], [0, 0, 0], [0, 1, 0]);
+        gl.uniformMatrix4fv(viewMatrixLoc, false, viewMatrix);
+
+        // View position (camera position)
+        gl.uniform3f(viewPosLoc, 0, 10, 0);
+
+        // Light position
+        gl.uniform3f(lightPosLoc, 0, 30, 0);
+
+        // Animation variables (time-based motion, frame-rate independent)
+        let startTime = performance.now();
+        let lastTime = startTime;
+        let rotationAngle = 0.0;
+        let translationX = 0.0;
+        let totalRunTime = 0.0; // only advances while running
+
+        // RUN/PAUSE control via keyboard
+        let isRunning = true;
+
+        function updateObjectColor() {
+            if (isRunning) {
+                gl.uniform3f(objectColorLoc, 1.0, 0.0, 0.0); // red in RUN
+                console.log('STATE: RUNNING (Space toggles pause)');
+            } else {
+                gl.uniform3f(objectColorLoc, 0.0, 1.0, 0.0); // green in PAUSE
+                console.log('STATE: PAUSED (Space toggles run)');
+            }
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+            gl.drawElements(gl.TRIANGLES, cubeData.indexCount, gl.UNSIGNED_SHORT, 0);
+        }
+
+        window.addEventListener('keydown', (event) => {
+            if (event.code === 'Space') {
+                isRunning = !isRunning;
+                updateObjectColor();
+            }
+        });
+
+        updateObjectColor();
+
+        /**
+         * Animation loop
+         */
+        function animate(now) {
+            const currentTime = now || performance.now();
+            const elapsedTime = (currentTime - startTime) / 1000.0; // total seconds
+            const deltaTime = (currentTime - lastTime) / 1000.0; // seconds since last frame
+            lastTime = currentTime;
+
+            if (isRunning) {
+                // time-based updates (frame-rate independent)
+                const angularSpeed = Math.PI * 0.5; // radians per second
+                const translationSpeed = 1.5; // units per second
+
+                rotationAngle += angularSpeed * deltaTime;
+                translationX = Math.sin(elapsedTime * 0.8) * 2.0;
+
+                // keep angles within valid range to avoid huge numbers
+                if (rotationAngle > Math.PI * 2) {
+                    rotationAngle -= Math.PI * 2;
+                }
+            }
+
+            const modelMatrix = mat4.create();
+
+            mat4.translate(modelMatrix, modelMatrix, [translationX, 0, 0]);
+            mat4.rotateX(modelMatrix, modelMatrix, rotationAngle);
+            mat4.rotateY(modelMatrix, modelMatrix, rotationAngle * 0.5);
+
+            // update matrices
+            gl.uniformMatrix4fv(modelMatrixLoc, false, modelMatrix);
+
+            const normalMatrix = mat3.create();
+            mat3.normalFromMat4(normalMatrix, modelMatrix);
+            gl.uniformMatrix3fv(normalMatrixLoc, false, normalMatrix);
+
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+            gl.drawElements(gl.TRIANGLES, cubeData.indexCount, gl.UNSIGNED_SHORT, 0);
+
+            requestAnimationFrame(animate);
+        }
+
+        console.log('Animation loop starting...');
+        // Start animation with initial state
+        const identityMatrix = mat4.create();
+        const normalMatrixInit = mat3.create();
+        gl.uniformMatrix4fv(modelMatrixLoc, false, identityMatrix);
+        gl.uniformMatrix3fv(normalMatrixLoc, false, normalMatrixInit);
+        animate(performance.now());
+    </script>
+</body>
+</html>
