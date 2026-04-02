@@ -32,16 +32,14 @@ const fragmentShaderSource = /* glsl */ `
     
 
     void main() {
-        vec3 vlightsource = normalize(uLightPos - vFragPos);
-        vec3 reflectColor = uObjectColor*uLightColor;
+        vec3 dx = dFdx(vFragPos);
+        vec3 dy = dFdy(vFragPos);
+        vec3 normal = normalize(cross(dx, dy));
 
-        vec3 vCamera = normalize(uViewPos - vFragPos);
+        vec3 lightDir = normalize(uLightPos - vFragPos);
+        float diff = max(dot(normal, lightDir), 0.0);
 
-        // vec3 p = -dot(vlightsource, vNormal) * vNormal;
-        float c = dot(vlightsource, vCamera) - 2.0 *dot(vlightsource, vNormal)*dot(vNormal, vCamera);
-        // gl_FragColor = vec4(uObjectColor, 1.0);
-        c = max(c, 0.0);
-        gl_FragColor = vec4(reflectColor*c, 1.0);
+        gl_FragColor = vec4(uObjectColor * diff, 1.0);
     }
 `;
 

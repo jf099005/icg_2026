@@ -48,11 +48,6 @@
     <div class="container">
         <h1>WebGL 3D Animated Cube</h1>
         <p class="info">Red cube with Phong lighting | Translation (X-axis) + Rotation (X-axis)</p>
-        <div class="control">
-            <label for="scaleSlider" style="color:white;">Object Size</label>
-            <input id="scaleSlider" type="range" min="0.2" max="3.0" step="0.01" value="1.0" style="width:300px; margin-left:10px;">
-            <span id="scaleValue" style="color: #fff; margin-left: 8px;">1.00</span>
-        </div>
         <canvas id="glCanvas" width="800" height="600"></canvas>
         <div class="stats">
             <p>Camera: Z = 10 | Light: (0, 30, 0) | Background: Blue</p>
@@ -99,7 +94,7 @@
 
         // Set viewport and clear color
         gl.viewport(0, 0, canvas.width, canvas.height);
-        gl.clearColor(0.1, 0.1, 0.1, 1.0); // Blue background (darker blue with more opacity)
+        gl.clearColor(0.2, 0.2, 0.8, 1.0); // Blue background (darker blue with more opacity)
         gl.enable(gl.DEPTH_TEST);
         
         console.log('WebGL context initialized');
@@ -143,17 +138,6 @@
 
         // 設定光源顏色 (白光)
         gl.uniform3f(lightColorLoc, 1.0, 1.0, 1.0);
-
-        // 將滑桿連結到模型縮放
-        let objectScale = 1.0;
-        const scaleSlider = document.getElementById('scaleSlider');
-        const scaleValue = document.getElementById('scaleValue');
-        if (scaleSlider && scaleValue) {
-            scaleSlider.addEventListener('input', (event) => {
-                objectScale = parseFloat(event.target.value);
-                scaleValue.textContent = objectScale.toFixed(2);
-            });
-        }
 
         async function startApp() {
             // 1. 讀取 JSON
@@ -203,7 +187,6 @@
                 // console.log('elapsedSeconds:', elapsedSeconds, '\n');
                 const modelMatrix = mat4.create();
                 mat4.rotateY(modelMatrix, modelMatrix, elapsedSeconds); // 讓模型旋轉方便檢查各面
-                mat4.scale(modelMatrix, modelMatrix, [objectScale, objectScale, objectScale]); // 根據滑桿調整大小
 
                 gl.uniformMatrix4fv(modelMatrixLoc, false, modelMatrix);
                 
