@@ -53,7 +53,7 @@
             <input id="scaleSlider" type="range" min="0.2" max="3.0" step="0.01" value="1.0" style="width:300px; margin-left:10px;">
             <span id="scaleValue" style="color: #fff; margin-left: 8px;">1.00</span>
         </div>
-        <canvas id="glCanvas" width="800" height="600"></canvas>
+        <canvas id="glCanvas" width="1600" height="1200"></canvas>
         <div class="stats">
             <p>Camera: Z = 10 | Light: (0, 30, 0) | Background: Blue</p>
             <p id="fps">FPS: 0</p>
@@ -118,13 +118,15 @@
         // Get attribute locations
         const positionLoc = gl.getAttribLocation(program, 'aPosition');
         const normalLoc = gl.getAttribLocation(program, 'aNormal');
+        const frontcolorLoc = gl.getAttribLocation(program, 'aFrontColor');
+        const backcolorLoc = gl.getAttribLocation(program, 'aBackColor');
 
         // Get uniform locations
         const modelMatrixLoc = gl.getUniformLocation(program, 'uModelMatrix');
         const viewMatrixLoc = gl.getUniformLocation(program, 'uViewMatrix');
         const projectionMatrixLoc = gl.getUniformLocation(program, 'uProjectionMatrix');
         const normalMatrixLoc = gl.getUniformLocation(program, 'uNormalMatrix');
-        const objectColorLoc = gl.getUniformLocation(program, 'uObjectColor');
+        // const objectColorLoc = gl.getUniformLocation(program, 'uObjectColor');
         const lightPosLoc = gl.getUniformLocation(program, 'uLightPos');
         const viewPosLoc = gl.getUniformLocation(program, 'uViewPos');
         const lightColorLoc = gl.getUniformLocation(program, 'uLightColor');
@@ -133,13 +135,13 @@
         gl.useProgram(program); // 確保正在使用您的 program
 
         // 設定物體顏色 (例如紅色)
-        gl.uniform3f(objectColorLoc, 1.0, 0.0, 0.0);
+        // gl.uniform3f(objectColorLoc, 0.8, 0.8, 0.8);
 
         // 設定光源位置 (高處、稍微偏右前方)
-        gl.uniform3f(lightPosLoc, 10.0, 10.0, 10.0);
+        gl.uniform3f(lightPosLoc, 0.0, 30.0, 0.0);
 
         // 設定攝影機位置 (假設從 Z 軸看過去)
-        gl.uniform3f(viewPosLoc, 0.0, 0.0, 10.0);
+        gl.uniform3f(viewPosLoc, 0.0, 0.0, -200.0);
 
         // 設定光源顏色 (白光)
         gl.uniform3f(lightColorLoc, 1.0, 1.0, 1.0);
@@ -155,19 +157,26 @@
             });
         }
 
-        async function startApp() {
-            // 1. 讀取 JSON
-            const response = await fetch('model.json');
+        async function read_model(model_name){
+            const response = await fetch(model_name);
             const modelData = await response.json();
 
             // 2. 轉換數據
             const positions = new Float32Array(modelData.vertexPositions);
             const normals = new Float32Array(modelData.vertexNormals);
+            const front_colors = new Float32Array(modelData.vertexFrontcolors);
+            const back_colors = new Float32Array(modelData.vertexBackcolors);
             const vertexCount = positions.length / 3;
 
             console.log("vertexCount:", vertexCount);
+            return { positions, normals, front_colors, back_colors, vertexCount};
+        }
 
-            // 3. 建立並綁定 Buffer (位置與法線)
+        async function startApp() {
+            const { positions, normals, front_colors, back_colors, vertexCount } =
+                     await read_model('Teapot.json');
+            console.log("colors:", front_colors);
+
             const posBuffer = createBuffer(gl, positions);
             gl.enableVertexAttribArray(positionLoc);
             gl.vertexAttribPointer(positionLoc, 3, gl.FLOAT, false, 0, 0);
@@ -175,6 +184,15 @@
             const normBuffer = createBuffer(gl, normals);
             gl.enableVertexAttribArray(normalLoc);
             gl.vertexAttribPointer(normalLoc, 3, gl.FLOAT, false, 0, 0);
+
+            const frontcolorBuffer = createBuffer(gl, front_colors);
+            gl.enableVertexAttribArray(frontcolorLoc);
+            gl.vertexAttribPointer(frontcolorLoc, 3, gl.FLOAT, false, 0, 0);
+
+            const backcolorBuffer = createBuffer(gl, back_colors);
+            gl.enableVertexAttribArray(backcolorLoc);
+            gl.vertexAttribPointer(backcolorLoc, 3, gl.FLOAT, false, 0, 0);
+
 
             let startTime = performance.now();
             let lastTime = startTime;
