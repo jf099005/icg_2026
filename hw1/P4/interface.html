@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebGL 3D Animated Cube with Lighting</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #1a1a1a;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        canvas {
+            border: 2px solid #333;
+            display: block;
+            margin: 20px auto;
+        }
+
+        h1 {
+            color: white;
+            margin: 0 0 10px 0;
+        }
+
+        .info {
+            color: #aaa;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .stats {
+            color: #888;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<!-- <body onload="startApp();"> -->
+<body>
+    <div class="container">
+        <h1>WebGL 3D Animated Cube</h1>
+        <p class="info">Red cube with Phong lighting | Translation (X-axis) + Rotation (X-axis)</p>
+        <div class="control">
+            <label for="scaleSlider" style="color:white;">Object Size</label>
+            <input id="scaleSlider" type="range" min="0.05" max="4.0" step="0.01" value="1.0" style="width:300px; margin-left:10px;">
+            <span id="scaleValue" style="color: #fff; margin-left: 8px;">1.00</span>
+        </div>
+
+        <div class="control">
+            <label for="shearSlider" style="color:white;">shear</label>
+            <input id="shearSlider" type="range" min="-2" max="2.0" step="0.01" value="0.0" style="width:300px; margin-left:10px;">
+            <span id="shearValue" style="color: #fff; margin-left: 8px;">1.00</span>
+        </div>
+
+
+        <canvas id="glCanvas" width="800" height="600"></canvas>
+        <div class="stats">
+            <p>Camera: Z = 10 | Light: (0, 30, 0) | Background: Blue</p>
+            <p id="fps">FPS: 0</p>
+        </div>
+    </div>
+
+    <!-- <script src="shaders.js"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.8.1/gl-matrix-min.js"></script>
+
+    <script type = "module" src="./js/main.js"></script>
+    <!-- <script src="shaders.js"></script>
+    <script src="geometry.js"></script>
+    <script src="read_model.js"></script> -->
+
+</body>
+
+
+</html>

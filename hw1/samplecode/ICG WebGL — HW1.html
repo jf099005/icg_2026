@@ -1,9 +1,11 @@
-<html><head>
-<title>ICG WebGL — HW1</title>
-<meta http-equiv="content-type" content="text/html; charset=windows-1252">
+<html>
 
-<script type="text/javascript" src="ICG%20WebGL%20%E2%80%94%20HW1_sample_files/glMatrix-0.9.5.min.js"></script>
-<script type="text/javascript" src="ICG%20WebGL%20%E2%80%94%20HW1_sample_files/webgl-utils.js"></script>
+<head>
+<title>ICG WebGL &mdash; HW1</title>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+
+<script type="text/javascript" src="glMatrix-0.9.5.min.js"></script>
+<script type="text/javascript" src="webgl-utils.js"></script>
 
 <script id="fragmentShader" type="fragment">
     #extension GL_OES_standard_derivatives : enable
@@ -1115,21 +1117,21 @@
     <canvas id="ICG-canvas" style="border: none;" width="800" height="600"></canvas>
 
     <table style="border: 0; padding: 10px;">
-    <tbody><tr>
+    <tr>
         <td>
             <select id="Model0" onchange="loadModels(model0, document.getElementById('Model0').value), r0">
-                <option selected="selected" value="./models/Csie.tri">Csie</option>
+                <option selected value="./models/Csie.tri">Csie</option>
                 <option value="./models/Church_s.tri">Church</option>
             </select>
         </td>
         <td>
             <select id="Model1">
-                <option selected="selected" value="./models/Teapot.json">Teapot</option>
+                <option selected value="./models/Teapot.json">Teapot</option>
             </select>
         </td>
         <td>
             <select id="Model2" onchange="loadModels(model2, document.getElementById('Model2').value, r2)">
-                <option selected="selected" value="./models/Car_road.tri">Car</option>
+                <option selected value="./models/Car_road.tri">Car</option>
                 <option value="./models/Kangaroo.tri">Kangaroo</option>
             </select>
         </td>
@@ -1137,75 +1139,75 @@
     <tr>
         <td>
             <select id="Texture0">
-            <option value="0">Points</option>
-            <option value="1">Lines</option>
-            <option value="2">Line_loop</option>
-            <option selected="selected" value="4">Triangles</option>
-            <option value="6">Triangle_fan</option>
+            <option value=0>Points</option>
+            <option value=1>Lines</option>
+            <option value=2>Line_loop</option>
+            <option selected value=4>Triangles</option>
+            <option value=6>Triangle_fan</option>
             </select>
         </td>
         <td>
             <select id="Texture1">
-            <option value="0">Points</option>
-            <option value="1">Lines</option>
-            <option value="2">Line_loop</option>
-            <option selected="selected" value="4">Triangles</option>
-            <option value="6">Triangle_fan</option>
+            <option value=0>Points</option>
+            <option value=1>Lines</option>
+            <option value=2>Line_loop</option>
+            <option selected value=4>Triangles</option>
+            <option value=6>Triangle_fan</option>
             </select>
         </td>
         <td>
             <select id="Texture2">
-            <option value="0">Points</option>
-            <option value="1">Lines</option>
-            <option value="2">Line_loop</option>
-            <option selected="selected" value="4">Triangles</option>
-            <option value="6">Triangle_fan</option>
+            <option value=0>Points</option>
+            <option value=1>Lines</option>
+            <option value=2>Line_loop</option>
+            <option selected value=4>Triangles</option>
+            <option value=6>Triangle_fan</option>
             </select>
         </td>
     </tr>
     <tr>
         <td>
             <select id="ShadingType0">
-            <option selected="selected" value="0">Flat Shading</option>
-            <option value="1">Gouraud Shading</option>
-            <option value="2">Phong Shading</option>
-            <option value="3">Cartoon Shading</option>
+            <option selected value=0>Flat Shading</option>
+            <option value=1>Gouraud Shading</option>
+            <option value=2>Phong Shading</option>
+            <option value=3>Cartoon Shading</option>
             </select>
         </td>
         <td>
             <select id="ShadingType1">
-            <option value="0">Flat Shading</option>
-            <option value="1">Gouraud Shading</option>
-            <option value="2">Phong Shading</option>
-            <option value="3" selected="selected">Cartoon Shading</option>
+            <option value=0>Flat Shading</option>
+            <option selected value=1>Gouraud Shading</option>
+            <option value=2>Phong Shading</option>
+            <option value=3>Cartoon Shading</option>
             </select>
         </td>
         <td>
             <select id="ShadingType2">
-            <option value="0">Flat Shading</option>
-            <option value="1">Gouraud Shading</option>
-            <option selected="selected" value="2">Phong Shading</option>
-            <option value="3">Cartoon Shading</option>
+            <option value=0>Flat Shading</option>
+            <option value=1>Gouraud Shading</option>
+            <option selected value=2>Phong Shading</option>
+            <option value=3>Cartoon Shading</option>
             </select>
         </td>
     </tr>
     <tr>
-        <td>y + cotz: <br><input type="range" id="shear0" min="-10" max="10" value="5"></td>
-        <td>x + coty: <br><input type="range" id="shear1" min="-10" max="10" value="10"></td>
-        <td>z + cotx: <br><input type="range" id="shear2" min="-10" max="10" value="5"></td>
+        <td>y + cotz: <br/><input type="range" id="shear0" min="-10" max="10" value="5"></td>
+        <td>x + coty: <br/><input type="range" id="shear1" min="-10" max="10" value="5"></td>
+        <td>z + cotx: <br/><input type="range" id="shear2" min="-10" max="10" value="5"></td>
     </tr>
     <tr>
-        <td>size: <br><input type="range" id="size0" min="1" max="20" value="5"></td>
-        <td>size: <br><input type="range" id="size1" min="1" max="20" value="5"></td>
-        <td>size: <br><input type="range" id="size2" min="1" max="20" value="5"></td>
+        <td>size: <br/><input type="range" id="size0" min="1" max="20" value="5"></td>
+        <td>size: <br/><input type="range" id="size1" min="1" max="20" value="5"></td>
+        <td>size: <br/><input type="range" id="size2" min="1" max="20" value="5"></td>
     </tr>
-    </tbody></table>
+    </table>
     <b>Shininess:</b>
     <input type="range" id="shininess" min="1" max="256" value="32.0">
-    <br>
+    <br/>
     <table style="border: 0; padding: 10px;">
-    <tbody><tr>
-        <th colspan="2" style="text-align: left;background-color: black;color: white;"><b>Light1: <input type="checkbox" id="Light0" checked="checked"></b></th>
+    <tr>
+        <th colspan="2" style="text-align: left;background-color: black;color: white;"><b>Light1: <input type="checkbox" id="Light0" checked></b></th>
         <th colspan="2" style="text-align: left;background-color: black;color: white;"><b>Light2: <input type="checkbox" id="Light1"></b></th>
     </tr>
     <tr style="background-color: #eee;">
@@ -1232,7 +1234,7 @@
         <td>z: <input type="text" id="z2" value="-1000"></td>
         <td>B: <input type="range" id="b2" min="0" max="255" value="200"></td>
     </tr>
-    </tbody></table>
+    </table>
+</body>
 
-
-</body></html>
+</html>
