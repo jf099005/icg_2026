@@ -47,7 +47,17 @@
 <!-- <body onload="startApp();"> -->
 <body>
     <div class="container">
-        <h1>WebGL 3D Animated Cube</h1>
+        <h1>WebGL 3D Animated</h1>
+        <button id="clippingBtn">Toggle Clipping</button>
+        <div class="control">
+            <label for="shadingSelect" style="color:white;">Shading Mode</label>
+            <select id="shadingSelect" style="margin-left:10px; padding: 4px;">
+                <option value="0">Flat Shading</option>
+                <option value="1">Gouraud (Interpolation)</option>
+                <option value="2" selected>Phong Shading</option>
+            </select>
+        </div>
+
         <p class="info">Red cube with Phong lighting | Translation (X-axis) + Rotation (X-axis)</p>
         <div class="control">
             <label for="scaleSlider" style="color:white;">Object Size</label>

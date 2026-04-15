@@ -1,11 +1,10 @@
 import { mat4 } from "https://esm.sh/gl-matrix";
 
-export var trans = [0, 0, 0];
+export var trans = vec3.create(0, 0, 0);
 
 var modelMatrix = mat4.create();
 var shearMatrix = mat4.create();
-export function getModelMatrix(center, angles, translate, scale, shear){
-    console.log(center, angles, translate, shear);
+export function getModelMatrix(angles, translate, scale, shear){
     mat4.identity(modelMatrix);
 
     mat4.identity(shearMatrix);
